@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Escalada do Setor</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3efe6;--fg:#1d2433;--card:#fff;--muted:#5d6678;--road:#3a3f4d;--b1:#d9dde3;--b2:#cfe3b8;--b3:#f4e2a8;--b4:#dfe9f2;--line:#e1ddd2;--ok:#1f8a5b;--bad:#d62839}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10141c;--fg:#eef1f6;--card:#1a2030;--muted:#97a0b3;--road:#2a2e3a;--b1:#232938;--b2:#1f3326;--b3:#3a3220;--b4:#1e2c3d;--line:#2a3144;--ok:#46d19a;--bad:#ff6b7a}}
+:root[data-theme="dark"]{--bg:#10141c;--fg:#eef1f6;--card:#1a2030;--muted:#97a0b3;--road:#2a2e3a;--b1:#232938;--b2:#1f3326;--b3:#3a3220;--b4:#1e2c3d;--line:#2a3144;--ok:#46d19a;--bad:#ff6b7a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:clamp(22px,4vw,34px);margin:0 0 4px;letter-spacing:-.5px}
+.sub{color:var(--muted);margin:0 0 12px;font-size:14px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px}
+.day{font-weight:800;font-size:18px;flex:1;min-width:200px}
+button{font:inherit;font-weight:700;border:0;border-radius:99px;padding:8px 16px;background:var(--fg);color:var(--bg);cursor:pointer}
+button.alt{background:var(--card);color:var(--fg);border:1px solid var(--line)}
+#wrap{position:relative}
+svg{width:100%;height:auto;display:block;border-radius:14px}
+#toast{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:99px;font-weight:700;font-size:14px;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap;max-width:94%;overflow:hidden;text-overflow:ellipsis}
+#toast.on{opacity:1}
+#rank{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+#rank li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:10px;font-size:15px}
+#rank .pos{font-weight:800;width:26px}
+#rank .dot{width:12px;height:12px;border-radius:50%;flex:none}
+#rank .nm{flex:1;line-height:1.2}
+#rank small{display:block;color:var(--muted);font-size:11px}
+#rank .pc{font-weight:800;text-align:right;line-height:1.2}
+.note{color:var(--muted);font-size:12px;margin-top:12px;line-height:1.5}
+html,body{height:100%;overflow:hidden}
+body{cursor:none}
+main{max-width:none;margin:0;padding:1.2vh 1.2vw;height:100vh;display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,27vw,560px);grid-template-rows:auto minmax(0,1fr);gap:1vh 1.2vw}
+header{grid-column:1/3;display:flex;justify-content:space-between;align-items:baseline;gap:2vw}
+h1{margin:0;font-size:clamp(20px,3.6vh,56px)}
+.day{flex:none;font-size:clamp(16px,3vh,46px)}
+#wrap{min-height:0}
+svg{height:100%;width:100%;border-radius:1.2vh}
+#toast{top:2%;font-size:clamp(14px,2.8vh,40px);padding:.8vh 2vh}
+#rank{display:flex;flex-direction:column;gap:.8vh;margin:0;min-height:0}
+#rank li{flex:1;min-height:0;font-size:clamp(13px,2.3vh,32px);padding:0 1.2vh;border-radius:1.2vh;overflow:hidden}
+#rank .nm{min-width:0}
+#rank small{font-size:.62em}
+#rank .dot{width:1.6vh;height:1.6vh}
+.note{display:none}
+.ctl{position:absolute;bottom:1.5%;left:50%;transform:translateX(-50%);display:flex;gap:8px;opacity:0;pointer-events:none;transition:opacity .4s}
+body.act .ctl{opacity:1;pointer-events:auto}
+#tip{position:absolute;opacity:0;pointer-events:none;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;line-height:1.45;z-index:3;white-space:nowrap}
+.cl{animation:dr 14s ease-in-out infinite alternate}.c2{animation-duration:19s;animation-direction:alternate-reverse}
+@keyframes dr{from{transform:translateX(-18px)}to{transform:translateX(18px)}}
+#cer{position:fixed;inset:0;z-index:10;display:none;overflow:hidden;color:#fff;text-align:center;cursor:pointer;
+ background:linear-gradient(to top,#1d3b2f,#6b7f95 22%,#e9a860 48%,#2d4a8a 78%,#0f1a40);background-size:100% 400%;animation:rise 7s ease-out forwards}
+#cer.on{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.4vh;padding:3vh 4vw}
+@keyframes rise{from{background-position:0 100%}to{background-position:0 0}}
+@keyframes pop{from{opacity:0;transform:translateY(4vh) scale(.8)}to{opacity:1;transform:none}}
+.ct{font-size:clamp(28px,7vh,90px);font-weight:900;animation:pop 1s 3s both;text-shadow:0 .4vh 2vh #0008}
+.cs{font-size:clamp(14px,2.6vh,34px);animation:pop 1s 3.4s both;max-width:80vw}
+.pod{display:flex;flex-wrap:wrap;gap:2vh 2vw;justify-content:center}
+.pc{background:#fff;color:#1d2433;border-radius:2vh;padding:2vh 2.4vw;font-size:clamp(18px,4vh,54px);font-weight:900;animation:pop .8s var(--d) both;border-bottom:1vh solid var(--c)}
+.pc b{display:block;font-size:1.5em}.pc small{display:block;font-size:.4em;font-weight:600;color:#5d6678}
+.oth{font-size:clamp(12px,2.1vh,28px);animation:pop 1s var(--d) both;opacity:.95;max-width:86vw;line-height:1.6}
+.cf{position:absolute;top:-6vh;font-size:3vh;animation:fall linear forwards;pointer-events:none}
+@keyframes fall{to{transform:translateY(112vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){.cl,.cf{animation:none}}
+#rank{gap:.7vh}
+#rank li{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:0 1vh;align-items:center;padding:0 1.2vh;background:var(--card);border:1px solid var(--line);border-radius:1.4vh}
+#rank .pos{font-size:1.2em;width:1.9em;text-align:center;font-weight:800}
+#rank .av{width:2.5em;height:2.5em;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;font-size:.95em}
+#rank .nm{display:flex;flex-direction:column;gap:.5vh;min-width:0}
+#rank .nm b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#rank small{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{position:relative;height:.9vh;min-height:6px;border-radius:9px;background:var(--line)}
+.bar i{display:block;height:100%;border-radius:9px;transition:width 1s}
+.bar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--fg);opacity:.3}
+#rank .pc{display:flex;flex-direction:column;align-items:flex-end;gap:.4vh;font-variant-numeric:tabular-nums}
+#rank em{font-style:normal;font-size:.62em;font-weight:800;padding:.15em .65em;border-radius:99px}
+#rank em.ok{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+#rank em.bad{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+aside{display:flex;flex-direction:column;gap:1vh;min-height:0;min-width:0}
+#rank{flex:1.45 1 0}
+#rank li{font-size:clamp(11px,1.9vh,26px)}
+#rank .nm{gap:.35vh}
+.dy{height:.6vh;min-height:4px;border-radius:9px;background:var(--line);overflow:hidden}.dy i{display:block;height:100%;width:0;border-radius:9px}
+.hj{font-size:.72em;font-weight:700;color:var(--muted);margin-left:.4em}
+#chat{flex:1 1 0;min-height:0;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:1.4vh;overflow:hidden}
+.ch{padding:.8vh 1.2vh;font-weight:800;font-size:clamp(12px,2vh,26px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.6em}
+.ch i{width:.9vh;height:.9vh;border-radius:50%;background:var(--bad);animation:bl 1.4s infinite}@keyframes bl{50%{opacity:.2}}
+#msgs{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:.8vh;padding:1vh;overflow:hidden}
+.msg{flex:none;background:var(--bg);border:1px solid var(--line);border-radius:1.2vh;padding:.8vh 1vh;font-size:clamp(11px,1.75vh,24px);line-height:1.35;animation:pop .6s both;cursor:pointer}
+.mh{display:flex;gap:.6em;align-items:center;flex-wrap:wrap;margin-bottom:.3vh}
+.tg{font-size:.66em;font-weight:900;padding:.1em .65em;border-radius:99px}.to{font-weight:800}
+.rx{display:flex;gap:.5em;margin-top:.4vh}
+.rx button{font-size:.8em;padding:.1em .6em;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:99px;font-weight:600}
+.halo{opacity:0;transform-box:fill-box;transform-origin:center}.halo.on{animation:ping 2.4s ease-out}
+@keyframes ping{0%{opacity:1;transform:scale(.5)}100%{opacity:0;transform:scale(2.6)}}
+#setor{flex:1;max-width:46vw;min-width:0}
+.sl{font-size:clamp(12px,2.2vh,30px);font-weight:700;white-space:nowrap}.sl b{font-size:1.5em;color:var(--ok)}.sl b.lo{color:var(--bad)}.sl span{color:var(--muted);font-size:.8em;margin-left:.6em}
+.sb{position:relative;height:1.5vh;min-height:9px;border-radius:9px;background:var(--line);margin:.5vh 0}
+.sb i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#f5a623,#ffd166)}
+.sb u{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--fg);opacity:.3}
+.sb em{position:absolute;top:-1.4vh;font-style:normal;transform:translateX(-50%);font-size:1.5vh;color:var(--fg)}
+.ss{font-size:clamp(11px,1.8vh,24px);font-weight:800}.ss.ok{color:var(--ok)}.ss.bad{color:var(--bad)}
+</style>
+</head>
+<body>
+<main>
+<header><h1>🏔️ Escalada do Setor</h1><div id="setor"></div><div class="day" id="day"></div></header>
+
+<div id="wrap">
+<svg id="map" viewBox="0 -20 800 540" role="img" aria-label="Montanha com os operadores subindo a trilha">
+<defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14224f"/><stop offset=".55" stop-color="#4f78c0"/><stop offset="1" stop-color="#f6b878"/></linearGradient>
+<linearGradient id="lo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9b6c6"/><stop offset="1" stop-color="#4c6a58"/></linearGradient>
+<linearGradient id="mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8793a3"/><stop offset=".5" stop-color="#667384"/><stop offset="1" stop-color="#4a5a52"/></linearGradient>
+<radialGradient id="sun"><stop offset="0" stop-color="#fff3c4"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/></radialGradient></defs>
+<rect x="0" y="-20" width="800" height="350" fill="url(#sk)"/><rect x="0" y="330" width="800" height="190" fill="url(#lo)"/>
+<circle cx="680" cy="30" r="80" fill="url(#sun)"/><circle cx="680" cy="30" r="20" fill="#fff6d6"/>
+<g fill="#fff" opacity=".85"><circle cx="60" cy="-5" r="1.5"/><circle cx="130" cy="30" r="1.2"/><circle cx="220" cy="0" r="1.5"/><circle cx="300" cy="55" r="1"/><circle cx="520" cy="-8" r="1.3"/><circle cx="90" cy="90" r="1"/><circle cx="470" cy="20" r="1"/></g>
+<polygon points="-20,430 60,345 120,385 190,330 260,400 400,500 -20,500" fill="#7f93ad"/><polygon points="820,430 740,345 680,388 610,340 540,400 400,500 820,500" fill="#7f93ad"/>
+<polygon points="-20,520 40,470 100,400 150,340 200,285 240,225 290,165 335,105 380,55 400,38 425,70 460,115 500,160 545,215 590,275 640,340 690,410 745,480 820,520" fill="url(#mt)"/>
+<polygon points="400,38 425,70 460,115 500,160 545,215 590,275 640,340 690,410 745,480 820,520 400,520" fill="#1b2430" opacity=".28"/>
+<g stroke="#2a3340" stroke-opacity=".35" stroke-width="2" fill="none"><path d="M400,38 L372,160 L330,300 L300,440"/><path d="M400,38 L430,170 L470,300 L520,440"/><path d="M335,105 L290,230 L240,380"/></g>
+<polygon points="400,38 380,55 352,84 335,105 322,128 345,122 360,142 380,120 400,152 420,124 440,150 456,126 474,132 460,115 425,70" fill="#f6fafd"/>
+<polygon points="400,38 425,70 460,115 474,132 456,126 440,150 420,124 400,152" fill="#b8c9dc" opacity=".6"/>
+<rect x="0" y="486" width="800" height="34" fill="#3d5a45"/><g id="trees" font-size="22"></g>
+<path id="road" d="M120,470 H620 Q675,470 655,432 Q640,400 595,400 H215 Q165,400 188,366 Q205,335 255,335 H550 Q605,335 585,300 Q570,270 520,270 H290 Q240,270 262,238 Q280,205 330,205 H465 Q515,205 490,172 Q472,140 425,140 H380 Q335,140 355,110 Q372,76 400,76 Q422,70 400,45" fill="none" stroke="#6b5a3e" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>
+<path d="M120,470 H620 Q675,470 655,432 Q640,400 595,400 H215 Q165,400 188,366 Q205,335 255,335 H550 Q605,335 585,300 Q570,270 520,270 H290 Q240,270 262,238 Q280,205 330,205 H465 Q515,205 490,172 Q472,140 425,140 H380 Q335,140 355,110 Q372,76 400,76 Q422,70 400,45" fill="none" stroke="#d8c59a" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M120,470 H620 Q675,470 655,432 Q640,400 595,400 H215 Q165,400 188,366 Q205,335 255,335 H550 Q605,335 585,300 Q570,270 520,270 H290 Q240,270 262,238 Q280,205 330,205 H465 Q515,205 490,172 Q472,140 425,140 H380 Q335,140 355,110 Q372,76 400,76 Q422,70 400,45" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2" stroke-dasharray="3 9" stroke-linecap="round"/>
+<g id="marks"></g><g id="cars"></g>
+<g id="clouds" fill="#fff" opacity=".72"><g class="cl"><ellipse cx="90" cy="335" rx="130" ry="26"/><ellipse cx="330" cy="345" rx="150" ry="24"/><ellipse cx="600" cy="332" rx="140" ry="28"/><ellipse cx="780" cy="345" rx="100" ry="24"/></g><g class="cl c2"><ellipse cx="200" cy="318" rx="110" ry="20"/><ellipse cx="450" cy="322" rx="120" ry="20"/><ellipse cx="710" cy="320" rx="90" ry="18"/><ellipse cx="40" cy="352" rx="90" ry="18"/></g></g>
+</svg>
+<div id="toast"></div><div id="tip"></div>
+<div class="ctl"><button id="reset" class="alt">↺ Hoje</button><button id="play"></button><button id="next">⏭ Próximo dia</button><button id="cerb" class="alt">🏆 Ver cerimônia</button></div>
+</div>
+<aside><ol id="rank"></ol><section id="chat"><div class="ch">📻 Rádio da Montanha <i></i></div><div id="msgs"></div></section></aside>
+<p class="note" id="note"></p>
+</main>
+<div id="cer"></div>
+<script>
+// ===== CONFIGURAÇÃO (o que muda de um mês para outro) =====
+// ===== CONEXÃO COM DADOS REAIS =====
+// Deixe vazio ("") para usar os dados de teste. Para dados reais, coloque o endereço do seu servidor, ex.: "/api/dados"
+// (NUNCA coloque a chave da API do WorkMonitor aqui: ela fica só no servidor.)
+const DATA_URL="", ATUALIZAR_A_CADA_SEGUNDOS=60;
+const META=0.85, ANO=2026, MES=10, DIAS=31, HOJE=8, PRIMEIRO_DIA_SEMANA=4; // 4 = quinta (01/10/2026)
+const PERFIS={P:{nome:"Padrão",h:8,sab:false},S:{nome:"Sábado",h:20/3,sab:true}}; // Sábado: 12:20-20:00 = 7:40 − 1h de intervalo = 6:40
+const ROT=[null,"Luiz Gustavo","Pedro Paiva","Luiz Gustavo","Pedro Paiva"]; // operador no turno 08:00-15:40, por semana (seg a dom)
+const OPS=[ // h = horas produtivas hoje (da tela do WorkMonitor); r = ritmo usado só na simulação
+ {n:"Ana Sofia",pf:"P",h:45+37/60,r:.95},{n:"Joel",pf:"P",h:49+31/60,r:1.03},
+ {n:"Luiz G Santos",pf:"P",h:13+50/60,r:.88,a:24},{n:"Luiz Gustavo",pf:"S",h:33+38/60,r:.84},
+ {n:"Pedro Aurelio",pf:"P",h:38+1/60,r:.79},{n:"Pedro Marcelino",pf:"P",h:38+11/60,r:.8},
+ {n:"Pedro Paiva",pf:"S",h:29+11/60,r:.73},{n:"Vinicius Vieira",pf:"P",h:38+42/60,r:.81}];
+const COLORS=["#e63946","#f4a261","#2a9d8f","#457b9d","#9b5de5","#f15bb5","#00a6a6","#6a994e"];
+// ===== CALENDÁRIO E METAS =====
+const dow=d=>(PRIMEIRO_DIA_SEMANA+d-1)%7, DS=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+const works=(pf,d)=>{const w=dow(d);return w===0?false:(PERFIS[pf].sab||w<=5)};
+const cum={};for(const pf in PERFIS){cum[pf]=[0];for(let d=1;d<=DIAS;d++)cum[pf][d]=cum[pf][d-1]+(works(pf,d)?PERFIS[pf].h:0)}
+const finTot=pf=>META*cum[pf][DIAS], fin=c=>finTot(c.pf)-META*c.abs, // faltas reduzem a meta do mês
+ esp=c=>META*(cum[c.pf][day-(c.pf==="S"&&day===HOJE?1:0)]-c.abs), wk=d=>d<5?0:1+Math.floor((d-5)/7);
+const fmt=h=>{const s=h<0?"−":"",m=Math.round(Math.abs(h)*60);return s+Math.floor(m/60)+":"+String(m%60).padStart(2,"0")+" h"};
+// ===== PISTA =====
+const NS="http://www.w3.org/2000/svg",road=document.getElementById("road"),L=road.getTotalLength();
+const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
+function pt(p,lane){const l=L*p/100,a=road.getPointAtLength(l),b=road.getPointAtLength(Math.min(L,l+1));
+ const dx=b.x-a.x,dy=b.y-a.y,n=Math.hypot(dx,dy)||1,o=(lane-4)*5;
+ return{x:a.x-dy/n*o,y:a.y+dx/n*o,ang:Math.atan2(dy,dx)*180/Math.PI}}
+function pt(p,lane){const l=L*p/100,a=road.getPointAtLength(l),b=road.getPointAtLength(Math.min(L,l+1));
+ const dx=b.x-a.x,dy=b.y-a.y,n=Math.hypot(dx,dy)||1,o=(lane-4)*3.6;return{x:a.x-dy/n*o,y:a.y+dx/n*o,ang:0}}
+const marks=document.getElementById("marks");
+[[30,"⛺ Acampamento"],[50,"☁️ Nuvens"],[75,"❄️ Neve"],[100,"🚩 Meta 85%"]].forEach(([p,t])=>{
+ const q=pt(p,4),g=el("g",{transform:`translate(${q.x},${q.y})`},marks),w=t.length*6.4+14;
+ el("rect",{x:-w/2,y:-44,width:w,height:17,rx:8,fill:"#000","fill-opacity":.55},g);
+ el("text",{y:-32,"text-anchor":"middle","font-size":11,"font-weight":700,fill:"#fff"},g).textContent=t});
+function mkCar(name,color,ghost){
+ const g=el("g",{},document.getElementById("cars")),halo=el("circle",{r:15,class:"halo",fill:"none",stroke:"#ffd166","stroke-width":3},g);
+ if(ghost)el("circle",{r:6,fill:"none",stroke:"#fff","stroke-width":1.6,"stroke-dasharray":"3 2"},g);
+ else{el("rect",{x:-6.5,y:-4,width:5,height:8,rx:1.5,fill:"#222","fill-opacity":.7},g);
+  el("rect",{x:-3.5,y:-4,width:7,height:9,rx:2.5,fill:color,stroke:"#fff","stroke-width":1},g);
+  el("circle",{cy:-7,r:3.2,fill:"#f2c9a0",stroke:"#fff","stroke-width":.8},g);
+  el("path",{d:"M-1,-9.5 Q0,-12 3,-9.5 Z",fill:color},g);el("line",{x1:5,y1:-3,x2:7,y2:7,stroke:"#fff","stroke-width":1.2},g)}
+ const w=name.length*4.7+9;
+ el("rect",{x:-w/2,y:-24,width:w,height:10,rx:5,fill:"#000","fill-opacity":.6},g);
+ el("text",{y:-16.3,"text-anchor":"middle","font-size":7.5,"font-weight":700,fill:"#fff"},g).textContent=name;
+ const fx=el("text",{y:-28,"text-anchor":"middle","font-size":13},g),r=el("g",{},g);
+ const hit=el("circle",{r:13,fill:"transparent",style:"cursor:pointer"},g);return{g,rg:r,fx,hit,halo}}
+{const tr=document.getElementById("trees");for(let x=8;x<800;x+=28)el("text",{x,y:500+((x/28|0)%2?9:0)},tr).textContent="🌲"}
+const cars=OPS.map((o,i)=>Object.assign({i,d:0,p:0,pit:0,pitted:false,half:false,fin:0,finDay:0,snow:false,td:o.pf==="P"?PERFIS.P.h*o.r*.6:0,tds:0,yr:[.70,1.05,.9,.85,.6,.88,.72,.8][i],yab:false,ab:false,h:o.h,abs:o.a||0},o,mkCar(o.n,COLORS[i])));
+const ghost=Object.assign({d:0,p:0},mkCar("Ritmo ideal","",true));
+const sec=(()=>{const g=el("g",{},document.getElementById("cars"));
+ el("circle",{r:11,fill:"#ffd166",stroke:"#fff","stroke-width":2},g);
+ el("text",{y:5,"text-anchor":"middle","font-size":14},g).textContent="🏕️";
+ el("rect",{x:-17,y:-31,width:34,height:11,rx:5.5,fill:"#b8860b"},g);
+ el("text",{y:-22.7,"text-anchor":"middle","font-size":8,"font-weight":900,fill:"#fff"},g).textContent="SETOR";
+ return{g,d:0,p:0,camp:false,half:false,snow:false,top:false}})();
+function secStats(){let H=0,F=0,E=0;cars.forEach(c=>{H+=c.h;F+=fin(c);E+=esp(c)});return{H,F,E,prod:H/(E/META)*100,pk:Math.min(100,H/F*100),diff:H-E}}
+function secUpdate(){const t=secStats(),ok=t.diff>=0,el_=document.getElementById("setor");
+ el_.innerHTML=`<div class="sl">🏕️ Produtividade do setor <b class="${t.prod>=85?"":"lo"}">${t.prod.toFixed(1).replace(".",",")}%</b><span>meta 85%</span></div><div class="sb"><i style="width:${t.pk}%"></i><u style="left:30%"></u><u style="left:50%"></u><u style="left:75%"></u><em style="left:${Math.min(100,t.E/t.F*100)}%">▾</em></div><div class="ss ${ok?"ok":"bad"}">${ok?"+":""}${fmt(t.diff)} ${ok?"à frente do ritmo, bora manter!":"abaixo do ritmo: juntos a gente recupera!"}</div>`}
+// ===== ESTADO =====
+let wait=false,day=HOJE,playing=false,nFin=0,tt;
+const toast=document.getElementById("toast");
+function say(m){toast.textContent=m;toast.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove("on"),3000)}
+const delta=c=>c.h-esp(c);
+function recalc(){cars.forEach(c=>{const q=c.h/fin(c);c.p=Math.min(100,q*100);if(q>=1&&!c.finDay)c.finDay=day});{const t=secStats();ghost.p=Math.min(100,t.E/t.F*100);sec.p=t.pk;secUpdate()}
+ document.getElementById("day").textContent=`${DS[dow(day)]} ${String(day).padStart(2,"0")}/${MES} · dia ${day} de ${DIAS}`;rank()}
+function advance(){
+ if(day>=DIAS){if(!wait){wait=true;say("🗓️ Virada do mês…");setTimeout(()=>cerShow(true),4500);setTimeout(()=>{cerHide();doReset(true);wait=false},4500+26000)}return}
+ day++;
+ cars.forEach(c=>{const H=PERFIS[c.pf].h;
+  if(works(c.pf,day-1)&&!(c.pf==="S"&&day===HOJE+1)){c.yr=c.ab?0:c.td/H;c.yab=c.ab}
+  c.ab=false;c.td=0;c.tds=0;
+  (c.pf==="S"&&day===HOJE+1?[HOJE,day]:[day]).forEach(d=>{if(!works(c.pf,d))return;
+   if(Math.random()<.04){c.abs+=H;if(d===day)c.ab=true;return}
+   const v=H*Math.max(.3,Math.min(1.15,c.r+(Math.random()-.5)*.24));c.h+=v;if(d===day)c.td+=v})});
+ recalc();dayMsgs()}
+function rank(){
+ const s=[...cars].sort((a,b)=>b.p-a.p||a.finDay-b.finDay);
+ 
+ document.getElementById("rank").innerHTML=s.map((c,k)=>{const dl=delta(c),ok=dl>=0,m=["🥇","🥈","🥉"][k]||(k+1)+"º";
+  return `<li><span class="pos">${m}</span><span class="av" style="background:${COLORS[c.i]}">${c.n[0]}</span>
+  <span class="nm"><b>${c.n}${ROT[wk(day)]===c.n?" 🌅":""}${c.finDay?" 🚩":""}<span class="hj">hoje <span id="dt${c.i}"></span></span></b><span class="bar"><i style="width:${c.p}%;background:${COLORS[c.i]}"></i><u style="left:30%"></u><u style="left:50%"></u><u style="left:75%"></u></span><span class="dy"><i id="dy${c.i}"></i></span></span>
+  <span class="pc"><b>${Math.round(c.p*30).toLocaleString("pt-BR")} m</b><em class="${ok?"ok":"bad"}">${ok?"+":""}${fmt(dl)}</em></span></li>`}).join("");cars.forEach(updDy)}
+function setPlay(v){playing=v;document.getElementById("play").textContent=v?"⏸ Pausar":"▶ Simular"}
+document.getElementById("play").onclick=()=>setPlay(!playing);
+function doReset(keep){if(!keep)setPlay(false);day=HOJE;nFin=0;cars.forEach(c=>Object.assign(c,{h:c.h0,abs:c.a0,d:0,pit:0,pitted:false,half:false,fin:0,finDay:0,snow:false,td:c.td0,tds:0,yr:c.yr0,yab:false,ab:false}));leader="";Q.length=0;msgs.innerHTML="";ghost.d=0;Object.assign(sec,{d:0,camp:false,half:false,snow:false,top:false});recalc();say("🚦 Largada! Situação de hoje");dayMsgs()}
+document.getElementById("reset").onclick=()=>doReset();
+cars.forEach(c=>{c.h0=c.h;c.a0=c.abs;c.td0=c.td;c.yr0=c.yr});
+setInterval(()=>{if(playing&&!DATA_URL)advance()},4000);
+// ===== ANIMAÇÃO =====
+function frame(){
+ const now=Date.now();
+ cars.concat(ghost).forEach(c=>{
+  if(c!==ghost){
+   if(!c.pitted&&c.d>=29.9&&c.p>30){c.pitted=true;c.pit=now+2500;c.d=30;0}
+   if(now>=c.pit)c.d+=(c.p-c.d)*.04;
+   if(!c.half&&c.d>=50){c.half=true}
+   if(!c.snow&&c.d>=75){c.snow=true}
+   if(!c.fin&&c.d>=99.5){c.fin=++nFin;rank()}
+   const dl=delta(c);c.fx.textContent=now<c.pit?"☕":dl>=1?"🔥":dl<=-4?"💨":"";c.tds+=(c.td-c.tds)*.02;updDy(c)}
+  else c.d+=(c.p-c.d)*.04;
+  const q=pt(c.d,c===ghost?4:c.i);
+  c.g.setAttribute("transform",`translate(${q.x},${q.y})`);c.rg.setAttribute("transform",`rotate(${q.ang})`)});
+
+ sec.d+=(sec.p-sec.d)*.04;const qs=pt(sec.d,4);sec.g.setAttribute("transform",`translate(${qs.x},${qs.y})`);
+ if(!sec.camp&&sec.d>=30){sec.camp=true;say("⛺ O SETOR chegou ao acampamento!");chat("skamp")}
+ if(!sec.half&&sec.d>=50){sec.half=true;say("☁️ O SETOR ultrapassou as nuvens!");chat("scloud")}
+ if(!sec.snow&&sec.d>=75){sec.snow=true;say("❄️ O SETOR chegou à neve!");chat("ssnow")}
+ if(!sec.top&&sec.d>=99.5){sec.top=true;say("🏆 O SETOR CHEGOU AO TOPO!");chat("stop")}
+ requestAnimationFrame(frame)}
+document.getElementById("note").innerHTML=
+ `<b>Como a pista é calculada.</b> Posição = horas produtivas ÷ (85% das horas do mês do perfil). Padrão: ${fmt(cum.P[DIAS])} no mês, chegada em ${fmt(finTot("P"))}, meta diária de ${fmt(.85*8)}. Sábado: ${fmt(cum.S[DIAS])} no mês, chegada em ${fmt(finTot("S"))}, meta diária de ${fmt(.85*PERFIS.S.h)}. Cada falta (PC não ligado) reduz a meta do mês da pessoa, igual ao WorkMonitor. Quem bate a meta todo dia cruza a linha no último dia; o carro tracejado é esse ritmo ideal. 🔥 = 1 h ou mais à frente, 💨 = 4 h ou mais atrás, 🌅 = turno 08:00-15:40 da semana. Dados de hoje: tela do WorkMonitor. Simulação dos próximos dias: fictícia.`;
+const msgs=document.getElementById("msgs"),Q=[];let leader="";
+const pick=a=>a[Math.random()*a.length|0];
+function updDy(c){const g=c.tds/(META*PERFIS[c.pf].h),e=document.getElementById("dy"+c.i),t=document.getElementById("dt"+c.i);
+ if(e){e.style.width=Math.min(100,g*100)+"%";e.style.background=g>=1?"#2ec27e":g>=.6?"#f5a623":"#e5484d"}
+ if(t)t.textContent=(g>=1?"⭐ ":"")+Math.round(g*100)+"%"}
+const TAG={below:["DÁ UM GÁS 🔥","#ff7043"],hit:["META BATIDA ✅","#2ec27e"],over:["VOOU 🚀","#ffb300"],star:["ESTRELA DO DIA ⭐","#ffb300"],absent:["SEM STRESS 🏕️","#8d9bb0"],camp:["ACAMPAMENTO ⛺","#a1887f"],cloud:["ACIMA DAS NUVENS ☁️","#4fc3f7"],snow:["NEVE ❄️","#80deea"],top:["TOPO CONQUISTADO 🚩","#ffd166"],setor:["SETOR 🏕️","#ffd166"],skamp:["SETOR NO ACAMPAMENTO ⛺","#ffd166"],scloud:["SETOR ACIMA DAS NUVENS ☁️","#4fc3f7"],ssnow:["SETOR NA NEVE ❄️","#80deea"],stop:["SETOR NO TOPO 🏆","#ffd166"],guia:["BOM DIA 🧭","#7e9bff"]};
+const TX={
+ guia:()=>pick([`☀️ Bom dia, escaladores! Hoje é o dia ${day} de ${DIAS} da expedição. A montanha tá linda, bora subir? 🏔️`,`🧭 Novo dia, nova trilha! Quem vai atacar primeiro hoje?`,`🥾 Café tomado, mochila nas costas. O topo não vai se escalar sozinho!`,`🎒 Dia ${day}: cada hora produtiva é um passo a mais rumo ao topo. Bora!`]),
+ below:x=>pick([`O setor conta com você hoje! Ontem foram ${x}% (a meta é 85%). Bora dar um gás juntos! 🔥`,`Ontem fechou em ${x}% do dia (a meta é 85%). Hoje é dia de dar um gás: a trilha premia quem acelera! 🔥`,`Ontem a subida pesou (${x}%). Mas montanha não se vence em um dia só: hoje é dia de virada! 🚀`,`${x}% ontem. Ajusta a mochila e vem: hoje dá pra passar dos 85%! 💪`,`Ontem foram ${x}%. Tá na hora de acelerar, o próximo marco é logo ali! ⛰️`]),
+ hit:x=>pick([`Meta batida com ${x}%: você puxou o setor pra cima! ✅`,`Meta de ontem batida com ${x}%! Mantém o passo e bora repetir hoje! ✅`,`${x}% ontem: subida firme! Quem constrói ritmo chega ao topo. 👏`,`Bateu a meta (${x}%)! O topo tá mais perto. 🏔️`]),
+ over:x=>pick([`Voou ontem com ${x}%! A montanha ficou até com inveja. 🚀`,`${x}% do dia! Isso é nível guia de expedição. 🔥`,`Acima dos 100% ontem (${x}%)! Segura esse gás! ⚡`]),
+ star:x=>pick([`Estrela de ontem com ${x}% do dia! Palmas pra essa subida! ⭐👏`,`Melhor desempenho de ontem: ${x}%! Inspirando a equipe toda. 🌟`]),
+ absent:()=>pick([`Sem stress: a falta de hoje não atrapalha a subida. A meta se ajusta e a montanha espera! 🏕️`,`Dia de descanso na trilha. Seu progresso continua protegido, volta com energia! 🌿`,`Tudo certo! Hoje é pausa, mas sua posição na expedição segue firme. 🫶`]),
+ camp:()=>pick([`Chegou ao acampamento! Recarrega as energias, o melhor da subida vem agora. ⛺☕`,`Parada oficial no ⛺! Respira fundo e já volta pra trilha.`,`Acampamento alcançado: 30% do caminho! Bora pro próximo marco! 🥾`]),
+ cloud:()=>pick([`Ultrapassou as nuvens! ☁️ Daqui pra cima é só céu azul e sol no rosto! 🌞`,`Metade da subida vencida! As nuvens ficaram pra trás. A vista tá linda, hein? 😍`,`Nas alturas! Acima das nuvens, a motivação é outra. ✨`]),
+ snow:()=>pick([`Pisou na neve! ❄️ Falta pouco pro topo, não solta o ritmo!`,`Neve à vista: começou a reta final! ⛷️`,`Neve no tênis e o topo logo ali! 🧊`]),
+ top:()=>pick([`CHEGOU AO TOPO! 🚩🎉 Lenda da montanha!`,`Bandeira plantada! 🚩 Meta de 85% conquistada. Respeito total!`,`Topo conquistado! O mundo todo lá embaixo aplaude. 👏🏔️`]),
+ setor:d=>d>=0?pick([`O setor está ${fmt(d)} à frente do ritmo! Todo mundo junto, bora manter! 🏕️`,`Setor no verde: +${fmt(d)} sobre o ritmo ideal. Cada hora conta! 💛`]):pick([`O setor está ${fmt(-d)} abaixo do ritmo. Se cada um der um gás hoje, a gente recupera! 💪`,`Faltam ${fmt(-d)} pra voltar ao ritmo. A vitória é do setor, então vamos juntos! 🤝`]),
+ skamp:()=>pick([`O SETOR chegou ao acampamento! ⛺ Todo mundo junto, bora recarregar e seguir!`]),
+ scloud:()=>pick([`O SETOR ULTRAPASSOU AS NUVENS! ☁️🎉 Metade do caminho vencida, juntos!`]),
+ ssnow:()=>pick([`O setor pisou na neve! ❄️ Reta final: não solta a corda!`]),
+ stop:()=>pick([`O SETOR CHEGOU AO TOPO! 🏆🚩 Vitória de toda a equipe!`])};
+function chat(type,c,x){Q.push({type,c,x})}
+function addMsg({type,c,x}){const [tg,col]=TAG[type],d=document.createElement("div");d.className="msg";if(c)d.dataset.i=c.i;
+ d.innerHTML=`<div class="mh"><span class="tg" style="background:${col}33;border:1px solid ${col}">${tg}</span>${c?`<span class="to" style="color:${COLORS[c.i]}">@${c.n}</span>`:""}</div>${TX[type](x)}<div class="rx"><button>👏 <i>0</i></button><button>🔥 <i>0</i></button><button>💪 <i>0</i></button></div>`;
+ msgs.appendChild(d);while(msgs.children.length>12)msgs.firstChild.remove()}
+function ping(c){c.halo.classList.remove("on");void c.halo.getBoundingClientRect();c.halo.classList.add("on")}
+msgs.onclick=e=>{const m=e.target.closest(".msg");if(!m)return;const b=e.target.closest("button");
+ if(b){const i=b.querySelector("i");i.textContent=+i.textContent+1}if(m.dataset.i!=null)ping(cars[m.dataset.i])};
+setInterval(()=>{const m=Q.shift();if(m)addMsg(m)},1300);
+function dayMsgs(){
+ chat("guia");chat("setor",null,secStats().diff);
+ const act=cars.filter(c=>works(c.pf,day)),best=[...act].filter(c=>!c.yab).sort((a,b)=>b.yr-a.yr)[0];
+ if(best&&best.yr>=META)chat("star",best,Math.round(best.yr*100));
+ act.filter(c=>c.ab).forEach(c=>chat("absent",c));
+ act.filter(c=>!c.ab&&!c.yab&&c!==best).map(c=>({c,pr:(c.yr<META?70:c.yr>=1?50:30)+Math.random()*25})).sort((a,b)=>b.pr-a.pr).slice(0,3)
+  .forEach(({c})=>chat(c.yr<META?"below":c.yr>=1?"over":"hit",c,Math.round(c.yr*100)))}
+const tip=document.getElementById("tip"),wrapEl=document.getElementById("wrap");
+cars.forEach(c=>{const f=e=>{const r=wrapEl.getBoundingClientRect(),dl=delta(c);
+ tip.innerHTML=`<b>${c.n}</b> · ${PERFIS[c.pf].nome}<br>${Math.round(c.p)}% do caminho até o topo<br>${fmt(c.h)} de ${fmt(fin(c))}<br><span style="color:var(${dl>=0?"--ok":"--bad"})">${dl>=0?"+":""}${fmt(dl)} ${dl>=0?"no ritmo":"atrasado"}</span>`;
+ tip.style.left=Math.min(e.clientX-r.left+14,r.width-200)+"px";tip.style.top=(e.clientY-r.top+14)+"px";tip.style.opacity=1};
+ ["pointerenter","pointermove","pointerdown"].forEach(v=>c.hit.addEventListener(v,f));c.hit.addEventListener("pointerleave",()=>tip.style.opacity=0)});
+const cer=document.getElementById("cer"),NIV=p=>p>=75?"❄️ chegou à neve":p>=50?"☁️ passou das nuvens":p>=30?"⛺ chegou ao acampamento":"🥾 ainda na trilha";
+let cerT;
+function cerHide(){cer.classList.remove("on");cer.innerHTML="";clearTimeout(cerT)}
+function cerShow(final){
+ const t=secStats(),win=t.H>=t.F,pr=n=>n.toFixed(1).replace(".",",")+"%",pull=[...cars].map(c=>({c,x:c.h-esp(c)})).sort((a,b)=>b.x-a.x).slice(0,3);
+ if(final)document.getElementById("day").textContent="Dom 01/11 · resultado de outubro";
+ cer.innerHTML=`<div class="ct">${win?"🏆 O SETOR CHEGOU AO TOPO!":"🏔️ O setor chegou pertinho do topo"}</div>
+ <div class="cs">${final?"Resultado de outubro":"Prévia do mês até agora"}: produtividade do setor <b>${pr(t.prod)}</b> (meta 85%)</div>
+ <div class="pod"><div class="pc" style="--d:4s;--c:#ffd166"><b>🏕️</b>Setor ${pr(t.prod)}<small>${win?"meta de 85% conquistada, vitória de todo mundo!":"faltaram "+fmt(t.F-t.H)+" para a meta. No próximo mês a gente chega junto!"}</small></div></div>
+ <div class="cs" style="--d:5s">Quem mais puxou a corda</div>
+ <div class="pod">${pull.map((o,i)=>`<div class="pc" style="--d:${5+i*.8}s;--c:${COLORS[o.c.i]}"><b>⭐</b>${o.c.n}<small>${o.x>=0?"+":""}${fmt(o.x)} sobre o ritmo</small></div>`).join("")}</div>
+ <div class="oth" style="--d:8s">A equipe toda: ${cars.map(c=>`<b>${c.n}</b> ${Math.round(c.h/(fin(c)/META)*100)}%`).join(" · ")}</div>`;
+ if(win)for(let i=0;i<70;i++){const f=document.createElement("span");f.className="cf";f.textContent=["🎉","⭐","✨","🎊"][i%4];
+  f.style.cssText=`left:${Math.random()*100}vw;animation-duration:${4+Math.random()*4}s;animation-delay:${4+Math.random()*8}s`;cer.appendChild(f)}
+ cer.classList.add("on");if(!final){clearTimeout(cerT);cerT=setTimeout(cerHide,26000)}}
+cer.onclick=()=>{if(!wait)cerHide()};
+document.getElementById("next").onclick=()=>{setPlay(false);advance()};
+document.getElementById("cerb").onclick=()=>cerShow(false);
+/* Formato que o servidor deve devolver (horas em decimal, ex.: 45h37 = 45.62):
+{ "dia": 8, "fimDeMes": false,
+  "operadores": [ { "nome":"Ana Sofia", "horasProdutivas":45.62, "horasAbonadas":0, "horasHoje":4.2,
+                    "ontemFracao":0.70, "faltouHoje":false, "faltouOntem":false } ] }
+"horasAbonadas" = horas do mês que saem da meta por faltas. "ontemFracao" = produtividade de ontem (0.70 = 70%). */
+let primeira=true;
+function aplicar(d){const novo=primeira||d.dia!==day;day=d.dia;
+ d.operadores.forEach(o=>{const c=cars.find(x=>x.n===o.nome);if(!c)return;
+  c.h=o.horasProdutivas;c.abs=o.horasAbonadas||0;c.td=o.horasHoje||0;c.yr=o.ontemFracao??c.yr;c.ab=!!o.faltouHoje;c.yab=!!o.faltouOntem});
+ recalc();if(novo)dayMsgs();primeira=false;if(d.fimDeMes&&!cer.classList.contains("on"))cerShow(true)}
+async function carregar(){try{const r=await fetch(DATA_URL,{cache:"no-store"});if(!r.ok)throw new Error(r.status);aplicar(await r.json())}catch(e){console.warn("Falha ao buscar dados:",e);say("⚠️ Sem conexão com os dados, mostrando o último valor")}}
+if(DATA_URL){carregar();setInterval(carregar,ATUALIZAR_A_CADA_SEGUNDOS*1000)}
+recalc();say("🚦 Início da subida!");if(!DATA_URL)dayMsgs();frame();
+if(!DATA_URL)setTimeout(()=>setPlay(true),7000);
+const fs=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+addEventListener("keydown",e=>{if(e.code==="Space"){e.preventDefault();setPlay(!playing)}else if(/^r$/i.test(e.key))doReset();else if(/^f$/i.test(e.key))fs();else if(/^c$/i.test(e.key))cerShow(false)});
+addEventListener("dblclick",fs);
+let ct;const act=()=>{document.body.classList.add("act");document.body.style.cursor="default";clearTimeout(ct);ct=setTimeout(()=>{document.body.classList.remove("act");document.body.style.cursor="none"},2500)};
+addEventListener("pointermove",act);addEventListener("pointerdown",act);
+const keepOn=()=>{try{navigator.wakeLock&&navigator.wakeLock.request("screen").catch(()=>{})}catch(e){}};
+keepOn();document.addEventListener("visibilitychange",()=>{if(!document.hidden)keepOn()});
+</script>
+</body>
+</html>
